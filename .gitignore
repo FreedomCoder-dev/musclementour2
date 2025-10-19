@@ -1,0 +1,19 @@
+# Node
+frontend/node_modules
+frontend/dist
+
+# Go
+backend/bin
+backend/*.log
+
+# Editor
+.DS_Store
+.idea/
+.vscode/
+
+# Python artifacts
+__pycache__/
+
+# Env files
+.env
+.env.*

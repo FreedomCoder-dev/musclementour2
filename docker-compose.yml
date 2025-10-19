@@ -1,0 +1,89 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: musclementour
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - musclementour
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/musclementour?sslmode=disable
+      SERVER_PORT: 8080
+      ACCESS_TOKEN_SECRET: supersecretaccess
+      REFRESH_TOKEN_SECRET: supersecretrefresh
+      ADMIN_EMAIL: admin@musclementour.app
+      ADMIN_PASSWORD: ChangeMe123!
+      ALLOWED_ORIGINS: http://app.localhost,http://localhost,http://localhost:5173
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - musclementour
+    labels:
+      - traefik.enable=true
+      - 'traefik.http.routers.backend.rule=Host(`api.localhost`) || (Host(`localhost`) && PathPrefix(`/api`))'
+      - traefik.http.routers.backend.entrypoints=web
+      - traefik.http.services.backend.loadbalancer.server.port=8080
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8080/healthz >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - musclementour
+    labels:
+      - traefik.enable=true
+      - 'traefik.http.routers.frontend.rule=Host(`app.localhost`) || (Host(`localhost`) && PathPrefix(`/`) && !PathPrefix(`/api`))'
+      - traefik.http.routers.frontend.entrypoints=web
+      - traefik.http.services.frontend.loadbalancer.server.port=80
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://127.0.0.1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  traefik:
+    image: traefik:v3.1
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - musclementour
+
+volumes:
+  db-data:
+
+networks:
+  musclementour:
+    driver: bridge
