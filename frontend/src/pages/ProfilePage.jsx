@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
+import AppScaffold from '../components/layout/AppScaffold';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
 
@@ -31,47 +31,53 @@ export default function ProfilePage() {
   }, [callWithAuth]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      <Navbar />
-      <main className="mx-auto w-full max-w-4xl px-4 py-10">
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur">
-          <h1 className="text-3xl font-semibold">Profile</h1>
-          <div className="mt-6 grid gap-6 md:grid-cols-2">
-            <div className="space-y-2">
-              <p className="text-sm uppercase tracking-widest text-white/40">Email</p>
-              <p className="text-lg font-medium">{user?.email}</p>
+    <AppScaffold
+      overline="Profile"
+      title="Your profile"
+      subtitle="Keep track of synced data, manage roles and revisit your latest sessions."
+    >
+      <div className="space-y-8">
+        <section className="rounded-[28px] bg-surfaceContainerHigh/80 p-6 shadow-[0_20px_60px_rgba(12,9,16,0.35)]">
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-onSurfaceVariant/70">Email</p>
+              <p className="mt-2 text-base font-semibold text-onSurface">{user?.email}</p>
             </div>
-            <div className="space-y-2">
-              <p className="text-sm uppercase tracking-widest text-white/40">Role</p>
-              <p className="text-lg font-medium capitalize">{user?.role}</p>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-onSurfaceVariant/70">Role</p>
+              <p className="mt-2 text-base font-semibold text-onSurface capitalize">{user?.role}</p>
             </div>
           </div>
-          {user?.role === 'admin' && (
-            <div className="mt-8">
-              <button
-                onClick={() => navigate('/admin')}
-                className="rounded-2xl bg-secondary px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-secondary/80"
-              >
-                Open admin panel
-              </button>
-            </div>
-          )}
-        </div>
+          {user?.role === 'admin' ? (
+            <button
+              type="button"
+              onClick={() => navigate('/admin')}
+              className="mt-6 inline-flex items-center gap-2 rounded-full bg-secondaryContainer px-5 py-3 text-sm font-semibold text-onSecondaryContainer shadow-sm transition hover:bg-secondaryContainer/90"
+            >
+              Manage exercise library
+              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          ) : null}
+        </section>
 
-        <section className="mt-10">
-          <h2 className="text-2xl font-semibold">Recent workouts</h2>
+        <section>
+          <h2 className="text-lg font-semibold text-onSurface">Recent workouts</h2>
           {loading ? (
-            <p className="mt-4 text-sm text-white/60">Loading history...</p>
+            <p className="mt-4 text-sm text-onSurfaceVariant">Loading history…</p>
           ) : workouts.length === 0 ? (
-            <p className="mt-4 text-sm text-white/60">No workouts logged yet. Start a session to see your history here.</p>
+            <div className="mt-4 rounded-[24px] bg-surfaceContainerLow/70 px-4 py-10 text-center text-sm text-onSurfaceVariant">
+              No workouts logged yet. Start your next session to build your timeline.
+            </div>
           ) : (
-            <div className="mt-6 space-y-4">
+            <div className="mt-5 space-y-4">
               {workouts.map((workout) => (
-                <article key={workout.id} className="rounded-2xl border border-white/5 bg-white/5 p-6">
+                <article key={workout.id} className="rounded-[24px] bg-surfaceContainer/80 p-5 shadow-[0_16px_40px_rgba(10,7,15,0.4)]">
                   <header className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <p className="text-sm uppercase tracking-widest text-white/40">Completed</p>
-                      <p className="text-lg font-semibold">
+                      <p className="text-xs font-semibold uppercase tracking-[0.3em] text-onSurfaceVariant/70">Completed</p>
+                      <p className="mt-1 text-base font-semibold text-onSurface">
                         {new Date(workout.completedAt || workout.startedAt).toLocaleString()}
                       </p>
                     </div>
@@ -79,16 +85,19 @@ export default function ProfilePage() {
                       {workout.entries?.length || 0} exercises
                     </span>
                   </header>
-                  <ul className="mt-4 space-y-2 text-sm text-white/70">
+                  <ul className="mt-4 space-y-2 text-sm text-onSurfaceVariant">
                     {workout.entries?.map((entry) => (
-                      <li key={entry.id} className="rounded-xl bg-slate-900/60 px-4 py-3">
-                        <div className="font-semibold">{entry.exerciseId}</div>
-                        <div className="flex flex-wrap gap-3 text-xs text-white/50">
+                      <li key={entry.id} className="rounded-2xl bg-surfaceContainerHighest/60 px-4 py-3">
+                        <div className="text-sm font-semibold text-onSurface">{entry.exerciseId}</div>
+                        <div className="mt-1 flex flex-wrap gap-3 text-xs uppercase tracking-wide text-onSurfaceVariant/80">
                           <span>{entry.sets} sets</span>
                           <span>{entry.reps} reps</span>
                           {entry.weight ? <span>{entry.weight} kg</span> : null}
                           {entry.durationSeconds ? <span>{Math.round(entry.durationSeconds / 60)} min</span> : null}
                         </div>
+                        {entry.notes ? (
+                          <p className="mt-2 text-xs text-onSurfaceVariant/80">{entry.notes}</p>
+                        ) : null}
                       </li>
                     ))}
                   </ul>
@@ -97,7 +106,7 @@ export default function ProfilePage() {
             </div>
           )}
         </section>
-      </main>
-    </div>
+      </div>
+    </AppScaffold>
   );
 }

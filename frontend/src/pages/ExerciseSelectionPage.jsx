@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
+import AppScaffold from '../components/layout/AppScaffold';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
 import { getExercises, saveExercises } from '../hooks/useIndexedDB';
@@ -78,68 +78,99 @@ export default function ExerciseSelectionPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      <Navbar />
-      <main className="mx-auto w-full max-w-5xl px-4 py-10">
-        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-3xl font-semibold">Choose your exercises</h1>
-            <p className="mt-2 text-sm text-white/60">
-              Browse the library curated by your coaches. Tap preload before going offline to take everything with you.
-            </p>
+    <AppScaffold
+      overline="New workout"
+      title="Assemble workout"
+      subtitle="Search your library, preload for offline access and jump straight into logging."
+    >
+      <div className="space-y-6">
+        <section className="rounded-[26px] bg-surfaceContainerHigh/80 p-5 shadow-[0_18px_60px_rgba(11,8,16,0.35)]">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-onSurface">Find the right moves</p>
+              <p className="mt-1 text-sm text-onSurfaceVariant">
+                Browse everything curated by your coaches. Preload before you go offline.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={preload}
+              className="inline-flex items-center gap-2 rounded-full bg-secondaryContainer px-5 py-3 text-sm font-semibold text-onSecondaryContainer shadow-sm transition hover:bg-secondaryContainer/90"
+            >
+              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M12 4v12m0 0 4-4m-4 4-4-4" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M5 18h14" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              Preload offline
+            </button>
           </div>
-          <button
-            onClick={preload}
-            className="rounded-2xl border border-secondary/50 px-6 py-3 text-sm font-semibold text-secondary transition hover:border-secondary"
-          >
-            Preload for offline
-          </button>
-        </div>
-        <div className="mt-6">
-          <input
-            type="search"
-            placeholder="Search by name, muscle group or equipment"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            className="w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white placeholder-white/40 focus:border-primary focus:outline-none"
-          />
-        </div>
-        {message && <p className="mt-4 text-sm text-secondary">{message}</p>}
-        {loading ? (
-          <p className="mt-10 text-center text-sm text-white/60">Loading exercises...</p>
-        ) : filteredExercises.length === 0 ? (
-          <p className="mt-10 text-center text-sm text-white/60">No exercises found. Try adjusting your search.</p>
-        ) : (
-          <div className="mt-8 grid gap-6 md:grid-cols-2">
-            {filteredExercises.map((exercise) => (
-              <article key={exercise.id} className="rounded-3xl border border-white/5 bg-white/5 p-6 transition hover:border-primary/60">
-                <h2 className="text-xl font-semibold">{exercise.name}</h2>
-                <p className="mt-2 text-sm text-white/70">{exercise.description || 'No description provided yet.'}</p>
-                <dl className="mt-4 flex flex-wrap gap-3 text-xs text-white/50">
-                  {exercise.muscleGroup && (
-                    <div className="rounded-full bg-white/10 px-3 py-1">
-                      <dt className="sr-only">Muscle</dt>
-                      <dd>{exercise.muscleGroup}</dd>
-                    </div>
-                  )}
-                  {exercise.equipment && (
-                    <div className="rounded-full bg-white/10 px-3 py-1">
-                      <dt className="sr-only">Equipment</dt>
-                      <dd>{exercise.equipment}</dd>
-                    </div>
-                  )}
-                </dl>
-                <button
-                  onClick={() => navigate(`/workout/${exercise.id}`)}
-                  className="mt-6 w-full rounded-2xl bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90"
-                >
-                  Log this exercise
-                </button>
+          <label className="mt-5 block text-xs font-semibold uppercase tracking-[0.3em] text-onSurfaceVariant/70" htmlFor="exercise-search">
+            Search library
+          </label>
+          <div className="mt-3 flex items-center gap-3 rounded-2xl bg-surfaceContainerHighest/60 px-4 py-3">
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 text-onSurfaceVariant" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <circle cx="11" cy="11" r="6" />
+              <path d="m20 20-2.8-2.8" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <input
+              id="exercise-search"
+              type="search"
+              placeholder="Name, muscle group or equipment"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              className="w-full bg-transparent text-sm text-onSurface placeholder:text-onSurfaceVariant/70 focus:outline-none"
+            />
+          </div>
+          {message && <p className="mt-4 text-xs font-medium text-secondary">{message}</p>}
+        </section>
+
+        <section className="space-y-4">
+          {loading ? (
+            <p className="text-center text-sm text-onSurfaceVariant">Loading exercises...</p>
+          ) : filteredExercises.length === 0 ? (
+            <div className="rounded-[24px] bg-surfaceContainerLow/70 px-4 py-10 text-center text-sm text-onSurfaceVariant">
+              Nothing here yet. Try adjusting your search or preload when you are back online.
+            </div>
+          ) : (
+            filteredExercises.map((exercise) => (
+              <article key={exercise.id} className="rounded-[24px] bg-surfaceContainer/80 p-5 shadow-[0_14px_40px_rgba(8,6,14,0.35)]">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <h2 className="text-lg font-semibold text-onSurface">{exercise.name}</h2>
+                    <p className="mt-2 text-sm text-onSurfaceVariant">
+                      {exercise.description || 'No description provided yet. Add one from the admin panel.'}
+                    </p>
+                    <dl className="mt-4 flex flex-wrap gap-2 text-xs text-onSurfaceVariant/90">
+                      {exercise.muscleGroup && (
+                        <div className="rounded-full bg-surfaceContainerHighest/80 px-3 py-1">
+                          <dt className="sr-only">Muscle</dt>
+                          <dd>{exercise.muscleGroup}</dd>
+                        </div>
+                      )}
+                      {exercise.equipment && (
+                        <div className="rounded-full bg-surfaceContainerHighest/80 px-3 py-1">
+                          <dt className="sr-only">Equipment</dt>
+                          <dd>{exercise.equipment}</dd>
+                        </div>
+                      )}
+                    </dl>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/workout/${exercise.id}`)}
+                    className="inline-flex items-center gap-2 self-end rounded-full bg-primary px-5 py-3 text-sm font-semibold text-onPrimary shadow-md shadow-primary/30 transition hover:bg-primary/90"
+                  >
+                    Log exercise
+                    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </button>
+                </div>
               </article>
-            ))}
-          </div>
-        )}
-      </main>
-    </div>
+            ))
+          )}
+        </section>
+      </div>
+    </AppScaffold>
   );
 }

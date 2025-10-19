@@ -12,18 +12,11 @@ import WorkoutPerformancePage from './pages/WorkoutPerformancePage';
 import AdminPanelPage from './pages/AdminPanelPage';
 
 export default function App() {
-  const { tokens, isOnline, user } = useAuth();
+  const { tokens, user } = useAuth();
   useOfflineSync(tokens?.accessToken);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      {!isOnline && (
-        <div className="bg-amber-500/20 text-amber-200">
-          <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2 text-sm">
-            <span>Offline mode enabled. New workout logs are stored locally and sync once you are online again.</span>
-          </div>
-        </div>
-      )}
+    <div className="min-h-screen bg-background text-onSurface">
       <Routes>
         <Route element={<PublicOnlyRoute />}>
           <Route path="/login" element={<LoginPage />} />

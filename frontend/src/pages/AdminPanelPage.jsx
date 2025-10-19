@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Navbar from '../components/Navbar';
+import AppScaffold from '../components/layout/AppScaffold';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
 
@@ -76,97 +76,104 @@ export default function AdminPanelPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      <Navbar />
-      <main className="mx-auto w-full max-w-6xl px-4 py-10">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-3xl font-semibold">Admin panel</h1>
-            <p className="mt-2 text-sm text-white/60">Manage the global exercise library used by every athlete.</p>
+    <AppScaffold
+      overline="Admin"
+      title="Exercise library"
+      subtitle="Create, edit and maintain the movements available to every athlete."
+    >
+      <div className="space-y-6">
+        {message && (
+          <div className="rounded-[20px] bg-secondaryContainer/40 px-4 py-3 text-sm font-medium text-onSecondaryContainer">
+            {message}
           </div>
-        </div>
-        {message && <p className="mt-4 text-sm text-secondary">{message}</p>}
+        )}
 
-        <section className="mt-8 grid gap-8 lg:grid-cols-[2fr,3fr]">
-          <form onSubmit={handleSubmit} className="space-y-4 rounded-3xl border border-white/10 bg-white/5 p-6">
-            <h2 className="text-xl font-semibold">{editingId ? 'Edit exercise' : 'New exercise'}</h2>
-            <div>
-              <label className="text-sm font-medium text-white">Name</label>
+        <section className="grid gap-6 lg:grid-cols-[2fr,3fr]">
+          <form onSubmit={handleSubmit} className="space-y-5 rounded-[28px] bg-surfaceContainerHigh/80 p-6 shadow-[0_20px_60px_rgba(12,9,16,0.4)]">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-onSurface">{editingId ? 'Edit exercise' : 'Create exercise'}</h2>
+              {editingId ? (
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="rounded-full border border-outline/40 px-4 py-2 text-xs font-semibold text-onSurface transition hover:border-primary hover:text-primary"
+                >
+                  Cancel edit
+                </button>
+              ) : null}
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-semibold uppercase tracking-[0.3em] text-onSurfaceVariant/70">Name</label>
               <input
                 value={form.name}
                 onChange={(event) => setForm({ ...form, name: event.target.value })}
                 required
-                className="mt-2 w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-white focus:border-primary focus:outline-none"
+                className="w-full rounded-2xl bg-surfaceContainerHighest/60 px-4 py-3 text-sm text-onSurface placeholder:text-onSurfaceVariant/70 focus:outline-none"
+                placeholder="Seated cable row"
               />
             </div>
-            <div>
-              <label className="text-sm font-medium text-white">Description</label>
+            <div className="space-y-2">
+              <label className="text-xs font-semibold uppercase tracking-[0.3em] text-onSurfaceVariant/70">Description</label>
               <textarea
                 rows="3"
                 value={form.description}
                 onChange={(event) => setForm({ ...form, description: event.target.value })}
-                className="mt-2 w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white focus:border-primary focus:outline-none"
+                className="w-full rounded-2xl bg-surfaceContainerHighest/60 px-4 py-3 text-sm text-onSurface placeholder:text-onSurfaceVariant/70 focus:outline-none"
+                placeholder="Targets lats and mid-back. Keep core braced and chest lifted."
               />
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <label className="text-sm font-medium text-white">Muscle group</label>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-[0.3em] text-onSurfaceVariant/70">Muscle group</label>
                 <input
                   value={form.muscleGroup}
                   onChange={(event) => setForm({ ...form, muscleGroup: event.target.value })}
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-white focus:border-primary focus:outline-none"
+                  className="w-full rounded-2xl bg-surfaceContainerHighest/60 px-4 py-3 text-sm text-onSurface placeholder:text-onSurfaceVariant/70 focus:outline-none"
+                  placeholder="Back"
                 />
               </div>
-              <div>
-                <label className="text-sm font-medium text-white">Equipment</label>
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-[0.3em] text-onSurfaceVariant/70">Equipment</label>
                 <input
                   value={form.equipment}
                   onChange={(event) => setForm({ ...form, equipment: event.target.value })}
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-white/10 px-4 py-3 text-white focus:border-primary focus:outline-none"
+                  className="w-full rounded-2xl bg-surfaceContainerHighest/60 px-4 py-3 text-sm text-onSurface placeholder:text-onSurfaceVariant/70 focus:outline-none"
+                  placeholder="Cable machine"
                 />
               </div>
             </div>
-            <div className="flex flex-wrap gap-3">
-              {editingId && (
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="rounded-2xl border border-white/10 px-6 py-3 text-sm font-semibold text-white transition hover:border-secondary hover:text-secondary"
-                >
-                  Cancel edit
-                </button>
-              )}
-              <button
-                type="submit"
-                className="rounded-2xl bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary/90"
-              >
-                {editingId ? 'Update exercise' : 'Create exercise'}
-              </button>
-            </div>
+            <button
+              type="submit"
+              className="inline-flex items-center justify-center rounded-full bg-primary px-5 py-3 text-sm font-semibold text-onPrimary shadow-md shadow-primary/30 transition hover:bg-primary/90"
+            >
+              {editingId ? 'Update exercise' : 'Create exercise'}
+            </button>
           </form>
 
           <div className="space-y-4">
             {exercises.map((exercise) => (
-              <article key={exercise.id} className="rounded-3xl border border-white/5 bg-white/5 p-6">
-                <div className="flex flex-wrap items-center justify-between gap-4">
+              <article key={exercise.id} className="rounded-[26px] bg-surfaceContainer/80 p-6 shadow-[0_18px_50px_rgba(11,8,16,0.4)]">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <h3 className="text-lg font-semibold">{exercise.name}</h3>
-                    <p className="text-sm text-white/60">{exercise.description || 'No description yet.'}</p>
-                    <div className="mt-3 flex flex-wrap gap-2 text-xs text-white/50">
-                      {exercise.muscleGroup && <span className="rounded-full bg-white/10 px-3 py-1">{exercise.muscleGroup}</span>}
-                      {exercise.equipment && <span className="rounded-full bg-white/10 px-3 py-1">{exercise.equipment}</span>}
+                    <h3 className="text-lg font-semibold text-onSurface">{exercise.name}</h3>
+                    <p className="mt-2 text-sm text-onSurfaceVariant">{exercise.description || 'No description yet.'}</p>
+                    <div className="mt-3 flex flex-wrap gap-2 text-xs text-onSurfaceVariant/80">
+                      {exercise.muscleGroup && <span className="rounded-full bg-surfaceContainerHighest/70 px-3 py-1">{exercise.muscleGroup}</span>}
+                      {exercise.equipment && <span className="rounded-full bg-surfaceContainerHighest/70 px-3 py-1">{exercise.equipment}</span>}
                     </div>
                   </div>
-                  <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
                     <button
+                      type="button"
                       onClick={() => handleEdit(exercise)}
-                      className="rounded-full border border-white/10 px-4 py-2 text-xs font-semibold text-white transition hover:border-secondary hover:text-secondary"
+                      className="rounded-full border border-outline/40 px-4 py-2 text-xs font-semibold text-onSurface transition hover:border-primary hover:text-primary"
                     >
                       Edit
                     </button>
                     <button
+                      type="button"
                       onClick={() => handleDelete(exercise.id)}
-                      className="rounded-full border border-white/10 px-4 py-2 text-xs font-semibold text-red-300 transition hover:border-red-400 hover:text-red-200"
+                      className="rounded-full border border-outline/40 px-4 py-2 text-xs font-semibold text-error transition hover:border-error hover:text-onError"
                     >
                       Delete
                     </button>
@@ -174,12 +181,14 @@ export default function AdminPanelPage() {
                 </div>
               </article>
             ))}
-            {exercises.length === 0 && (
-              <p className="text-sm text-white/60">No exercises yet. Create the first one using the form on the left.</p>
-            )}
+            {exercises.length === 0 ? (
+              <p className="rounded-[24px] bg-surfaceContainerLow/70 px-4 py-8 text-sm text-onSurfaceVariant">
+                No exercises yet. Create the first one using the form.
+              </p>
+            ) : null}
           </div>
         </section>
-      </main>
-    </div>
+      </div>
+    </AppScaffold>
   );
 }
